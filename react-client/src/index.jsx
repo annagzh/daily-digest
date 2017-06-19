@@ -6,29 +6,49 @@ import List from './components/List.jsx';
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      items: []
+    this.state = {
+      email: '',
+      username: ''
     }
   }
 
-  componentDidMount() {
-    $.ajax({
-      url: '/items', 
-      success: (data) => {
-        this.setState({
-          items: data
-        })
-      },
-      error: (err) => {
-        console.log('err', err);
-      }
+  onEmailChange (e) {
+    this.setState({
+      email: e.target.value
     });
   }
 
+  onUsernameChange (e) {
+    this.setState({
+      username: e.target.value
+    });
+  }
+
+  // componentDidMount() {
+  //   $.ajax({
+  //     url: '/items',
+  //     success: (data) => {
+  //       this.setState({
+  //         items: data
+  //       })
+  //     },
+  //     error: (err) => {
+  //       console.log('err', err);
+  //     }
+  //   });
+  // }
+
+  addToDB(email, username) {
+    console.log(`${email} & ${username} was added`);
+  }
+
+
   render () {
     return (<div>
-      <h1>Item List</h1>
-      <List items={this.state.items}/>
+      <h1>Daily Digest</h1>
+        <p>Enter your email: <input value={this.state.email} onChange={this.onEmailChange.bind(this)}/></p>
+        <p>Enter an Instagram username: <input value={this.state.username} onChange={this.onUsernameChange.bind(this)}/></p>
+        <p> <button onClick={() => this.addToDB(this.state.email, this.state.username)}> Submit </button> </p>
     </div>)
   }
 }

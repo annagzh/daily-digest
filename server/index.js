@@ -1,29 +1,48 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-// UNCOMMENT THE DATABASE YOU'D LIKE TO USE
-// var items = require('../database-mysql');
-// var items = require('../database-mongo');
+var request = require('request');
+var Subscriber = require('../database-mongo');
+// var Username = require('../database-mongo/index.js');
 
 var app = express();
 
-// UNCOMMENT FOR REACT
 app.use(express.static(__dirname + '/../react-client/dist'));
 
-// UNCOMMENT FOR ANGULAR
-// app.use(express.static(__dirname + '/../angular-client'));
-// app.use(express.static(__dirname + '/../node_modules'));
+// console.log('db', db);
 
-app.get('/items', function (req, res) {
-  items.selectAll(function(err, data) {
-    if(err) {
-      res.sendStatus(500);
-    } else {
-      res.json(data);
-    }
-  });
-});
+// app.get('/subscribers', function (req, res) {
+//   Subscriber.selectAll(function(err, data) {
+//     if (err) {
+//       res.sendStatus(500);
+//     } else {
+//       res.json(data);
+//     }
+//   });
+// });
+
+app.post('usernames/import', function (err, res, body) {
+
+ request({}, function (error, response, body) {
+   if (error) {
+     console.error(error);
+   } else {
+     var parsedBody = JSON.parse(body);
+     console.log('body in request:', typeof parsedBody);
+     res.end();
+   }
+ });
+})
+
+// app.get('/usernames', function (req, res) {
+//   Username.find({}, function(err, data) {
+//     if (err) {
+//       res.sendStatus(500);
+//     } else {
+//       res.json(data);
+//     }
+//   });
+// });
 
 app.listen(3000, function() {
   console.log('listening on port 3000!');
 });
-

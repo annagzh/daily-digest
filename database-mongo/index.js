@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/test');
+mongoose.connect('mongodb://localhost/subscriber');
 
 var db = mongoose.connection;
 
@@ -11,21 +11,44 @@ db.once('open', function() {
   console.log('mongoose connected successfully');
 });
 
-var itemSchema = mongoose.Schema({
-  quantity: Number,
-  description: String
+var subscriberSchema = mongoose.Schema({
+  email: String,
+  usernames: [{ type: String, ref: 'Username' }]
 });
 
-var Item = mongoose.model('Item', itemSchema);
+var usernameSchema = mongoose.Schema({
+  name: String,
+  subscribers: [{ type: String, ref: 'Subscriber' }]
+})
+
+var Subscriber = mongoose.model('Subscriber', subscriberSchema);
+var Username = mongoose.model('Username', usernameSchema)
 
 var selectAll = function(callback) {
-  Item.find({}, function(err, items) {
+  Subscriber.find({}, function(err, subscribers) {
     if(err) {
       callback(err, null);
     } else {
-      callback(null, items);
+      callback(null, subscribers);
     }
   });
 };
 
+// Subscriber.create({ email: 'annagzh@gmail.com', usernames: ['troprouge'] }, function (err, small) {
+//   if (err) {
+//     console.error(err);
+//   }
+// })
+
+// Subscriber.findOne({ email: 'annagzh@gmail.com' }).populate('usernames')
+// .exec(function (err, subscriber) {
+  //     if (err) {
+  //       console.error(err);
+  //     } else {
+  //
+  //     }
+  //   });
+
+module.exports = Subscriber;
+module.exports = Username;
 module.exports.selectAll = selectAll;
