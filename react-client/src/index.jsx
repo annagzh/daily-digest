@@ -39,7 +39,12 @@ class App extends React.Component {
   // }
 
   addToDB(email, username) {
-    console.log(`${email} & ${username} was added`);
+    console.log(`${email} & ${username} were added`);
+    $.ajax({
+      method: 'POST',
+      url: '/add',
+      data: { email: email, username: username }
+    })
   }
 
 
@@ -54,3 +59,12 @@ class App extends React.Component {
 }
 
 ReactDOM.render(<App />, document.getElementById('app'));
+
+//
+// addMovieToDB () {
+//    $.ajax({
+//      url: '/movies/new',
+//      type: 'POST',
+//      data: { title: this.state.newMovie }
+//    })
+//  }

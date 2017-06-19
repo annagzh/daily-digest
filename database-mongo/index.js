@@ -34,6 +34,10 @@ var selectAll = function(callback) {
   });
 };
 
+module.exports.subscriber = Subscriber;
+module.exports.username = Username;
+module.exports.selectAll = selectAll;
+
 // Subscriber.create({ email: 'annagzh@gmail.com', usernames: ['troprouge'] }, function (err, small) {
 //   if (err) {
 //     console.error(err);
@@ -48,7 +52,3 @@ var selectAll = function(callback) {
   //
   //     }
   //   });
-
-module.exports = Subscriber;
-module.exports = Username;
-module.exports.selectAll = selectAll;
