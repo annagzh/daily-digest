@@ -5,7 +5,7 @@ var Subscriber = require('../database-mongo/index.js').subscriber;
 var Username = require('../database-mongo/index.js').username;
 
 var mailgunApiKey = 'key-e3edd9c95058dd83cac50b50d5ea0e2a';
-var mailgunUrl = 'api.mailgun.net/v3/sandbox2ae20a0e34d147ed887ce38a536d2c58.mailgun.org/messages';
+var mailgunUrl = 'api.mailgun.net/v3/annazharkova.com/messages';
 
 var app = express();
 
@@ -46,14 +46,17 @@ var getEmailContent = function(subscriber, callback) {
 
 app.post('/getlist', function(req, res) {
   getEmailContent(req.body.email, function(err, usernames) {
+    var clickableUsernames = usernames.map(function (username) {
+      return `<p><a href="https://instagram.com/${username}">${username}</a></p>`
+    })
     if (err) {
       console.error(err);
     } else {
       var formData = {
-        from: 'postmaster@sandbox2ae20a0e34d147ed887ce38a536d2c58.mailgun.org',
+        from: 'InstaDigest <instadigest@annazharkova.com>',
         to: req.body.email,
-        subject: 'Daily Digest: Your list of subscriptions',
-        text: "You're currently receiving posts from these accounts:\n" + usernames.join('\n')
+        subject: 'Your list of subscriptions',
+        html: "<html><head><title>InstaDigest</title></head><body><p>You're currently receiving posts from these accounts:</p>" + clickableUsernames.join('') + "</body>"
       };
       var options = {
         method: 'POST',

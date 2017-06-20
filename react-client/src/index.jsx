@@ -69,7 +69,7 @@ class App extends React.Component {
 
   render () {
     return (<div>
-      <h1>Daily Digest</h1>
+      <h1>InstaDigest</h1>
       <p>Enter your email: <input value={this.state.email} onChange={this.onEmailChange.bind(this)}/></p>
       <p>Enter an Instagram username: <input value={this.state.username} onChange={this.onUsernameChange.bind(this)}/></p>
       <p> <button onClick={() => this.addToDB(this.state.email, this.state.username)}> Submit </button></p>
