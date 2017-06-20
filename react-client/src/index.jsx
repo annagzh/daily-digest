@@ -47,6 +47,7 @@ class App extends React.Component {
 
   addToDB(email, username) {
     if (email !== '' && username !== '') {
+      window.alert(`${email} & ${username} were added`);
       console.log(`${email} & ${username} were added`);
       $.ajax({
         method: 'POST',
@@ -58,6 +59,7 @@ class App extends React.Component {
 
   sendTestEmail(email) {
     if (email !== '') {
+      window.alert('email was queued')
       console.log('email was queued');
       $.ajax({
         method: 'POST',
