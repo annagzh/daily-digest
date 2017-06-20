@@ -8,7 +8,8 @@ class App extends React.Component {
     super(props);
     this.state = {
       email: '',
-      username: ''
+      username: '',
+      emailToCheck: ''
     }
   }
 
@@ -21,6 +22,12 @@ class App extends React.Component {
   onUsernameChange (e) {
     this.setState({
       username: e.target.value
+    });
+  }
+
+  onEmailToCheckChange (e) {
+    this.setState({
+      emailToCheck: e.target.value
     });
   }
 
@@ -39,29 +46,35 @@ class App extends React.Component {
   // }
 
   addToDB(email, username) {
-    console.log(`${email} & ${username} were added`);
-    $.ajax({
-      method: 'POST',
-      url: '/add',
-      data: { email: email, username: username }
-    })
+    if (email !== '' && username !== '') {
+      console.log(`${email} & ${username} were added`);
+      $.ajax({
+        method: 'POST',
+        url: '/add',
+        data: { email: email, username: username }
+      })
+    }
   }
 
-  sendTestEmail() {
-    console.log('test email was sent');
-    $.ajax({
-      method: 'GET',
-      url: '/testemail'
-    })
+  sendTestEmail(email) {
+    if (email !== '') {
+      console.log('email was queued');
+      $.ajax({
+        method: 'POST',
+        url: '/getlist',
+        data: { email: email }
+      })
+    }
   }
 
   render () {
     return (<div>
       <h1>Daily Digest</h1>
-        <p>Enter your email: <input value={this.state.email} onChange={this.onEmailChange.bind(this)}/></p>
-        <p>Enter an Instagram username: <input value={this.state.username} onChange={this.onUsernameChange.bind(this)}/></p>
-        <p> <button onClick={() => this.addToDB(this.state.email, this.state.username)}> Submit </button></p>
-        <p> <button onClick={() => this.sendTestEmail()}>Send test email</button></p>
+      <p>Enter your email: <input value={this.state.email} onChange={this.onEmailChange.bind(this)}/></p>
+      <p>Enter an Instagram username: <input value={this.state.username} onChange={this.onUsernameChange.bind(this)}/></p>
+      <p> <button onClick={() => this.addToDB(this.state.email, this.state.username)}> Submit </button></p>
+      <p>Enter your email to receive a list of usernames in your digest: <input value={this.state.emailToCheck} onChange={this.onEmailToCheckChange.bind(this)}/></p>
+      <p> <button onClick={() => this.sendTestEmail(this.state.emailToCheck)}>Send me a list of usernames</button></p>
     </div>)
   }
 }

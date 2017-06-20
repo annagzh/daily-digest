@@ -34,36 +34,44 @@ app.post('/add', function (req, res) {
   })
 })
 
-app.get('/testemail', function(req, res) {
-  var formData = {
-    from: 'postmaster@sandbox2ae20a0e34d147ed887ce38a536d2c58.mailgun.org',
-    to: 'annagzh@gmail.com',
-    subject:'Hello from Daily Digest',
-    text: 'hi!'
-  };
-  var options = {
-    method: 'POST',
-    uri: 'https://api:' + mailgunApiKey + '@' + mailgunUrl,
-    qs: formData
-  };
-  request(options, function (err, httpResponse, body) {
+var getEmailContent = function(subscriber, callback) {
+  Subscriber.findOne({ email: subscriber }, ['usernames'], function (err, usernames) {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, usernames.usernames);
+    }
+  })
+}
+
+app.post('/getlist', function(req, res) {
+  getEmailContent(req.body.email, function(err, usernames) {
     if (err) {
       console.error(err);
     } else {
-      console.log(body);
+      var formData = {
+        from: 'postmaster@sandbox2ae20a0e34d147ed887ce38a536d2c58.mailgun.org',
+        to: req.body.email,
+        subject: 'Daily Digest: Your list of subscriptions',
+        text: "You're currently receiving posts from these accounts:\n" + usernames.join('\n')
+      };
+      var options = {
+        method: 'POST',
+        uri: 'https://api:' + mailgunApiKey + '@' + mailgunUrl,
+        qs: formData
+      };
+      request(options, function (err, httpResponse, body) {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log(body);
+        }
+      })
     }
   })
 })
 
-// var getEmailContent = function(subscriber) {
-//   Subscriber.findOne({ email: subscriber }, ['usernames'], function (err, usernames) {
-//     if (err) {
-//       console.error(err);
-//     } else {
-//       console.log(usernames);
-//     }
-//   })
-// }
+
 // console.log('get email content:', getEmailContent('annagzh@gmail.com'));
 
 // Person.findOne({ 'name.last': 'Ghost' }, 'name occupation', function (err, person) {
