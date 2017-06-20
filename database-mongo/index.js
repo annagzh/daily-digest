@@ -22,21 +22,21 @@ var usernameSchema = mongoose.Schema({
 })
 
 var Subscriber = mongoose.model('Subscriber', subscriberSchema);
-var Username = mongoose.model('Username', usernameSchema)
+var Username = mongoose.model('Username', usernameSchema);
 
-var selectAll = function(callback) {
-  Subscriber.find({}, function(err, subscribers) {
-    if(err) {
-      callback(err, null);
-    } else {
-      callback(null, subscribers);
-    }
-  });
-};
+// var selectAll = function(callback) {
+//   Subscriber.find({}, function(err, subscribers) {
+//     if(err) {
+//       callback(err, null);
+//     } else {
+//       callback(null, subscribers);
+//     }
+//   });
+// };
 
 module.exports.subscriber = Subscriber;
 module.exports.username = Username;
-module.exports.selectAll = selectAll;
+// module.exports.selectAll = selectAll;
 
 // Subscriber.create({ email: 'annagzh@gmail.com', usernames: ['troprouge'] }, function (err, small) {
 //   if (err) {
