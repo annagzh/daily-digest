@@ -34,6 +34,148 @@ app.post('/add', function (req, res) {
   })
 })
 
+// ---------------------------------------------------------------------------
+// WORKING ASYNC.MAP:
+var usernamesTest = ['troprouge', 'annagzh'];
+var getMostRecentPic = function(username, callback) {
+  request(`https://www.instagram.com/${username}/media/`, function(error, response, body) {
+    if (error) {
+      callback(error, null);
+    } else {
+      if (!body.includes('<!DOCTYPE html>')) {
+        var parsedBody = JSON.parse(body);
+        return callback(null, parsedBody.items[0].images.standard_resolution.url)
+      }
+    }
+  })
+}
+//
+// async.map(usernamesTest, getMostRecentPic, function(err, results) {
+//     if (err) {
+//     console.log("Couldn't get Instagram user id");
+//     console.log('err:', err);
+//   } else {
+//     console.log('Got all Instagram pics successfully');
+//     console.log('results:', results);
+//   }
+// })
+
+// -------------------------------------------------------------------
+//  WORKING CODE:
+var getEmailContent = function(subscriber, callback) {
+  Subscriber.findOne({ email: subscriber }, ['usernames'], function (err, usernames) {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, usernames.usernames);
+    }
+  })
+}
+
+app.post('/getlist', function(req, res) {
+  getEmailContent(req.body.email, function(err, usernames) {
+    if (err) {
+      console.error(err);
+    } else {
+      async.map(usernamesTest, getMostRecentPic, function(err, results) {
+          if (err) {
+          console.log("Couldn't get Instagram user id");
+          console.log('err:', err);
+        } else {
+          console.log('Got all Instagram pics successfully');
+          console.log('results:', results);
+          var formData = {
+            from: 'InstaDigest <instadigest@annazharkova.com>',
+            to: req.body.email,
+            subject: 'Your list of subscriptions',
+            html: "<html><head><title>InstaDigest</title></head><body><p>You're currently receiving posts from these accounts:</p>" + results.join('') + "</body>"
+          };
+          var options = {
+            method: 'POST',
+            uri: 'https://api:' + mailgunApiKey + '@' + mailgunUrl,
+            qs: formData
+          };
+          request(options, function (err, httpResponse, body) {
+            if (err) {
+              console.error(err);
+            } else {
+              console.log(body);
+            }
+          })
+        }
+      })
+    }
+  })
+})
+// ------------------------------------------------------------------------------
+// var formData = {
+//   from: 'InstaDigest <instadigest@annazharkova.com>',
+//   to: req.body.email,
+//   subject: 'Your list of subscriptions',
+//   html: "<html><head><title>InstaDigest</title></head><body><p>You're currently receiving posts from these accounts:</p>" + clickableUsernames.join('') + "</body>"
+// };
+// var options = {
+//   method: 'POST',
+//   uri: 'https://api:' + mailgunApiKey + '@' + mailgunUrl,
+//   qs: formData
+// };
+// request(options, function (err, httpResponse, body) {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     console.log(body);
+//   }
+// })
+
+// ------------------------------------------------------------------------------
+
+app.get('/show', function(req, res) {
+  request('https://api.instagram.com/v1/users/search?q=annagzh&access_token=30829209.4585f3e.aaff98d0e8374746ae61468a88c19856', function(error, response, body) {
+    if (error) {
+      console.error(error);
+    } else {
+      var parsedBody = JSON.parse(body);
+      // console.log('parsedBody', parsedBody);
+      res.json(parsedBody);
+    }
+  })
+})
+
+app.listen(3000, function() {
+  console.log('listening on port 3000!');
+});
+
+// CLICKABLE USERNAMES IN EMAIL - WORKING CODE:
+// app.post('/getlist', function(req, res) {
+//   getEmailContent(req.body.email, function(err, usernames) {
+//     var clickableUsernames = usernames.map(function (username) {
+//       return `<p><a href="https://instagram.com/${username}">${username}</a></p>`
+//     })
+//     if (err) {
+//       console.error(err);
+//     } else {
+//       var formData = {
+//         from: 'InstaDigest <instadigest@annazharkova.com>',
+//         to: req.body.email,
+//         subject: 'Your list of subscriptions',
+//         html: "<html><head><title>InstaDigest</title></head><body><p>You're currently receiving posts from these accounts:</p>" + clickableUsernames.join('') + "</body>"
+//       };
+//       var options = {
+//         method: 'POST',
+//         uri: 'https://api:' + mailgunApiKey + '@' + mailgunUrl,
+//         qs: formData
+//       };
+//       request(options, function (err, httpResponse, body) {
+//         if (err) {
+//           console.error(err);
+//         } else {
+//           console.log(body);
+//         }
+//       })
+//     }
+//   })
+// })
+
 // ---------------------------------------------------------------------------------
 //  get Instagram user id:
 // app.get('/userid', function(req, res) {
@@ -80,127 +222,3 @@ app.post('/add', function (req, res) {
 //     })
 //   })
 // }
-
-// ---------------------------------------------------------------------------
-// TESTING ASYNC.MAP:
-var usernamesTest = ['troprouge', 'annagzh'];
-var getMostRecentPic = function(username, callback) {
-  request(`https://www.instagram.com/${username}/media/`, function(error, response, body) {
-    if (error) {
-      callback(error, null);
-    } else {
-      if (!body.includes('<!DOCTYPE html>')) {
-        var parsedBody = JSON.parse(body);
-        return callback(null, parsedBody.items[0].images.standard_resolution.url)
-      }
-    }
-  })
-}
-
-async.map(usernamesTest, getMostRecentPic, function(err, results) {
-    if( err ) {
-    // One of the iterations produced an error.
-    // All processing will now stop.
-    console.log("Couldn't get Instagram user id");
-    console.log('err:', err);
-    // return err;
-  } else {
-    console.log('Got all Instagram pics successfully');
-    console.log('results:', results);
-  }
-  // console.log('results:', results);
-})
-// console.log(usernamesWithPics);
-
-// -------------------------------------------------------------------
-//  WORKING CODE:
-var getEmailContent = function(subscriber, callback) {
-  Subscriber.findOne({ email: subscriber }, ['usernames'], function (err, usernames) {
-    if (err) {
-      callback(err, null);
-    } else {
-      callback(null, usernames.usernames);
-    }
-  })
-}
-
-app.post('/getlist', function(req, res) {
-  getEmailContent(req.body.email, function(err, usernames) {
-    var clickableUsernames = usernames.map(function (username) {
-      return `<p><a href="https://instagram.com/${username}">${username}</a></p>`
-    })
-
-    if (err) {
-      console.error(err);
-    } else {
-      var formData = {
-        from: 'InstaDigest <instadigest@annazharkova.com>',
-        to: req.body.email,
-        subject: 'Your list of subscriptions',
-        html: "<html><head><title>InstaDigest</title></head><body><p>You're currently receiving posts from these accounts:</p>" + clickableUsernames.join('') + "</body>"
-      };
-      var options = {
-        method: 'POST',
-        uri: 'https://api:' + mailgunApiKey + '@' + mailgunUrl,
-        qs: formData
-      };
-      request(options, function (err, httpResponse, body) {
-        if (err) {
-          console.error(err);
-        } else {
-          console.log(body);
-        }
-      })
-    }
-  })
-})
-
-// ------------------------------------------------------------------------------
-//
-app.get('/show', function(req, res) {
-  request('https://api.instagram.com/v1/users/search?q=annagzh&access_token=30829209.4585f3e.aaff98d0e8374746ae61468a88c19856', function(error, response, body) {
-    if (error) {
-      console.error(error);
-    } else {
-      var parsedBody = JSON.parse(body);
-      // console.log('parsedBody', parsedBody);
-      res.json(parsedBody);
-    }
-  })
-})
-
-app.listen(3000, function() {
-  console.log('listening on port 3000!');
-});
-
-
-// CLICKABLE USERNAMES IN EMAIL - WORKING CODE:
-// app.post('/getlist', function(req, res) {
-//   getEmailContent(req.body.email, function(err, usernames) {
-//     var clickableUsernames = usernames.map(function (username) {
-//       return `<p><a href="https://instagram.com/${username}">${username}</a></p>`
-//     })
-//     if (err) {
-//       console.error(err);
-//     } else {
-//       var formData = {
-//         from: 'InstaDigest <instadigest@annazharkova.com>',
-//         to: req.body.email,
-//         subject: 'Your list of subscriptions',
-//         html: "<html><head><title>InstaDigest</title></head><body><p>You're currently receiving posts from these accounts:</p>" + clickableUsernames.join('') + "</body>"
-//       };
-//       var options = {
-//         method: 'POST',
-//         uri: 'https://api:' + mailgunApiKey + '@' + mailgunUrl,
-//         qs: formData
-//       };
-//       request(options, function (err, httpResponse, body) {
-//         if (err) {
-//           console.error(err);
-//         } else {
-//           console.log(body);
-//         }
-//       })
-//     }
-//   })
-// })
