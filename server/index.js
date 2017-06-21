@@ -72,6 +72,14 @@ var getEmailContent = function(subscriber, callback) {
   })
 }
 
+var generateHtml = function(array) {
+  var withDivs = array.map(function(url) {
+    return `<div> <img src=${url}> </div>`
+  })
+  var arr = withDivs.join('')
+  return "<html><head><title>InstaDigest</title></head><body><p>You're currently receiving posts from these accounts:</p>" +  arr + "</body>"
+}
+
 app.post('/getlist', function(req, res) {
   getEmailContent(req.body.email, function(err, usernames) {
     if (err) {
@@ -88,7 +96,7 @@ app.post('/getlist', function(req, res) {
             from: 'InstaDigest <instadigest@annazharkova.com>',
             to: req.body.email,
             subject: 'Your list of subscriptions',
-            html: "<html><head><title>InstaDigest</title></head><body><p>You're currently receiving posts from these accounts:</p>" + results.join('') + "</body>"
+            html: generateHtml(results)
           };
           var options = {
             method: 'POST',
