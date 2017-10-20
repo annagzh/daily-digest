@@ -5,8 +5,8 @@ var Subscriber = require('../database-mongo/index.js').subscriber;
 var Username = require('../database-mongo/index.js').username;
 var async = require('async');
 
-var mailgunApiKey = 'key-e3edd9c95058dd83cac50b50d5ea0e2a';
-var mailgunUrl = 'api.mailgun.net/v3/annazharkova.com/messages';
+var mailgunApiKey;
+var mailgunUrl;
 
 var app = express();
 
